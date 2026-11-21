@@ -1,25 +1,42 @@
 #!/usr/bin/env python3
-"""Micro-text entry (U19): writes one constant text to /output/entry.txt.
+"""Write one short joke about AI coding agents to a text file.
 
-The text IS the entry: 1-280 Unicode code points, deterministic.
-No network, no model calls. Run: python3 main.py [out_path]
-Default output: /output/entry.txt (the grader's path).
+The joke is a fixed literal: the program has no inputs, no clocks, no
+network calls and no variation between runs, so every execution produces
+exactly the same bytes. By default the file is /output/entry.txt; pass a
+different path as the first command-line argument, or set ENTRY_OUTPUT.
 """
+
 import os
 import sys
 
-# The entry text. Replaced per competition by the night run from drafts/<name>.txt.
-# Must be 1-280 Unicode code points, not whitespace-only, no trailing newline.
-TEXT = 'Live on stage, our agent fixed its own crash in three seconds — then deleted the whole demo to prove the fix worked.'
+# The entry: a single line about an agent whose own demo crashed.
+# The dash before "then" is one em dash character (U+2014), written here
+# as an escape so the source stays plain ASCII.
+JOKE = (
+    "Live on stage, our agent fixed its own crash in three seconds "
+    "\u2014 then deleted the whole demo to prove the fix worked."
+)
 
-def main() -> int:
-    out = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("ENTRY_OUTPUT", "/output/entry.txt")
-    d = os.path.dirname(out)
-    if d:
-        os.makedirs(d, exist_ok=True)
-    with open(out, "w", encoding="utf-8", newline="\n") as f:
-        f.write(TEXT)
+DEFAULT_OUTPUT = "/output/entry.txt"
+
+
+def resolve_output(argv):
+    """Pick the output path: argv[1] wins, then ENTRY_OUTPUT, then default."""
+    if len(argv) > 1 and argv[1]:
+        return argv[1]
+    env_path = os.environ.get("ENTRY_OUTPUT")
+    if env_path:
+        return env_path
+    return DEFAULT_OUTPUT
+
+
+def main(argv):
+    out_path = resolve_output(argv)
+    with open(out_path, "w", encoding="utf-8", newline="") as handle:
+        handle.write(JOKE)
     return 0
 
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv))
