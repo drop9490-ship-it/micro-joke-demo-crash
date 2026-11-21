@@ -5,6 +5,14 @@ The joke is a fixed literal: the program has no inputs, no clocks, no
 network calls and no variation between runs, so every execution produces
 exactly the same bytes. By default the file is /output/entry.txt; pass a
 different path as the first command-line argument, or set ENTRY_OUTPUT.
+
+Output contract: the file holds exactly one line, the joke above, encoded
+as UTF-8 with no trailing newline, so the byte count never changes. The
+writer opens the path fresh on every run, overwriting any previous file
+rather than appending to it. Nothing is read from the network, the clock,
+or the environment beyond ENTRY_OUTPUT, so two runs in a row are byte
+identical. If the output directory does not exist the open call fails
+loudly instead of silently writing somewhere else.
 """
 
 import os
